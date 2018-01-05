@@ -6,14 +6,12 @@ import (
 	"github.com/golang/glog"
 )
 
-// Weather is a struct representing the weather
 type Weather struct {
 	Weather     string
 	Temperature float32
 	Humidity    float32
 }
 
-// WeatherProvider can load the weather
 type Provider interface {
 	GetWeather(location string) (*Weather, error)
 }
