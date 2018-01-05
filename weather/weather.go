@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/golang/glog"
 	"github.com/lorenzobenvenuti/hutemon/http"
@@ -36,17 +35,9 @@ type wUndergroundResponse struct {
 }
 
 func (wu *wUndergroundWeatherProvider) GetWeather(location string) (*Weather, error) {
-
-	client := http.NewHttpClient(time.Second * 10)
-
 	url := fmt.Sprintf("http://api.wunderground.com/api/%s/conditions/q/IT/%s.json", wu.apiKey, location)
-	body, err := client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
 	wur := &wUndergroundResponse{}
-	err = http.NewJsonUnmarshaller().Unmarshal(body, wur)
+	err := http.GetAndUnmarshal(url, wur)
 	if err != nil {
 		return nil, err
 	}
@@ -56,11 +47,14 @@ func (wu *wUndergroundWeatherProvider) GetWeather(location string) (*Weather, er
 		return nil, err
 	}
 	return &Weather{Weather: wur.CurrentObservation.Weather, Temperature: wur.CurrentObservation.TempC, Humidity: float32(h)}, nil
-
 }
 
 func NewWUndergroundWeatherProvider(apiKey string) WeatherProvider {
 	return &wUndergroundWeatherProvider{apiKey: apiKey}
+}
+
+type openWeatherMapWeatherProvider struct {
+	apiKey string
 }
 
 type openWeatherMapResponse struct {
@@ -68,9 +62,23 @@ type openWeatherMapResponse struct {
 		Main string `json:"main"`
 	} `json:"weather"`
 	Main struct {
-		Temp     float64 `json:"temp"`
+		Temp     float32 `json:"temp"`
 		Humidity int     `json:"humidity"`
 	} `json:"main"`
+}
+
+func (wp *openWeatherMapWeatherProvider) GetWeather(location string) (*Weather, error) {
+	url := fmt.Sprintf("http://api.openweathermap.org/data/2.5/weather?appid=%s&q=%s&units=metric", wp.apiKey, location)
+	owr := &openWeatherMapResponse{}
+	err := http.GetAndUnmarshal(url, owr)
+	if err != nil {
+		return nil, err
+	}
+	return &Weather{Weather: owr.Weather[0].Main, Temperature: owr.Main.Temp, Humidity: float32(owr.Main.Humidity)}, nil
+}
+
+func NewOpenWeatherMapWeatherProvider(apiKey string) WeatherProvider {
+	return &openWeatherMapWeatherProvider{apiKey: apiKey}
 }
 
 type weatherProviderChain struct {
@@ -80,10 +88,11 @@ type weatherProviderChain struct {
 func (wpc *weatherProviderChain) GetWeather(location string) (*Weather, error) {
 	for _, wp := range wpc.weatherProviders {
 		w, err := wp.GetWeather(location)
-		if err != nil {
-			glog.Errorf("Provider %v returned an error: %s", w, err)
+		if err == nil {
+			glog.Infof("Provider %v returned result: %v", wp, w)
 			return w, nil
 		}
+		glog.Errorf("Provider %v returned an error: %s", wp, err)
 	}
 	return nil, errors.New("No provider did return weather")
 }

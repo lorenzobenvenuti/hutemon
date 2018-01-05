@@ -53,3 +53,14 @@ func (ju *jsonUnmarshaller) Unmarshal(bytes []byte, v interface{}) error {
 func NewJsonUnmarshaller() JsonUnmarshaller {
 	return &jsonUnmarshaller{}
 }
+
+var defaultHttpClient = NewHttpClient(10 * time.Second)
+var defaultJsonUnmarshaller = NewJsonUnmarshaller()
+
+func GetAndUnmarshal(url string, v interface{}) error {
+	body, err := defaultHttpClient.Get(url)
+	if err != nil {
+		return err
+	}
+	return defaultJsonUnmarshaller.Unmarshal(body, v)
+}
