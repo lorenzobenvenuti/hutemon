@@ -1,16 +1,14 @@
 package weather
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/golang/glog"
+	"github.com/lorenzobenvenuti/hutemon/http"
 )
 
 // Weather is a struct representing the weather
@@ -39,26 +37,16 @@ type wUndergroundResponse struct {
 
 func (wu *wUndergroundWeatherProvider) GetWeather(location string) (*Weather, error) {
 
-	client := http.Client{Timeout: time.Second * 10}
+	client := http.NewHttpClient(time.Second * 10)
+
 	url := fmt.Sprintf("http://api.wunderground.com/api/%s/conditions/q/IT/%s.json", wu.apiKey, location)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
 	wur := &wUndergroundResponse{}
-	err = json.Unmarshal(body, wur)
+	err = http.NewJsonUnmarshaller().Unmarshal(body, wur)
 	if err != nil {
 		return nil, err
 	}
@@ -68,10 +56,21 @@ func (wu *wUndergroundWeatherProvider) GetWeather(location string) (*Weather, er
 		return nil, err
 	}
 	return &Weather{Weather: wur.CurrentObservation.Weather, Temperature: wur.CurrentObservation.TempC, Humidity: float32(h)}, nil
+
 }
 
 func NewWUndergroundWeatherProvider(apiKey string) WeatherProvider {
 	return &wUndergroundWeatherProvider{apiKey: apiKey}
+}
+
+type openWeatherMapResponse struct {
+	Weather []struct {
+		Main string `json:"main"`
+	} `json:"weather"`
+	Main struct {
+		Temp     float64 `json:"temp"`
+		Humidity int     `json:"humidity"`
+	} `json:"main"`
 }
 
 type weatherProviderChain struct {
