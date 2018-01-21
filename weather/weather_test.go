@@ -64,5 +64,4 @@ func TestProviderChainWhenBothProvidersReturnsError(t *testing.T) {
 	assert.Equal(t, "Pisa", p2.location, "First provider is invoked with right argument")
 	assert.Nil(t, w, "Weather is nil")
 	assert.Equal(t, "All providers failed to retrieve weather", e.Error(), "Error is not nil")
-
 }

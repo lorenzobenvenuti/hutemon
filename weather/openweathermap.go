@@ -2,12 +2,15 @@ package weather
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/lorenzobenvenuti/hutemon/http"
 )
 
 type openWeatherMapProvider struct {
-	apiKey string
+	apiKey           string
+	httpClient       http.HttpClient
+	jsonUnmarshaller http.JsonUnmarshaller
 }
 
 type openWeatherMapResponse struct {
@@ -23,7 +26,11 @@ type openWeatherMapResponse struct {
 func (wp *openWeatherMapProvider) GetWeather(location string) (*Weather, error) {
 	url := fmt.Sprintf("http://api.openweathermap.org/data/2.5/weather?appid=%s&q=%s&units=metric", wp.apiKey, location)
 	owr := &openWeatherMapResponse{}
-	err := http.GetAndUnmarshal(url, owr)
+	bytes, err := wp.httpClient.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	wp.jsonUnmarshaller.Unmarshal(bytes, owr)
 	if err != nil {
 		return nil, err
 	}
@@ -31,5 +38,9 @@ func (wp *openWeatherMapProvider) GetWeather(location string) (*Weather, error) 
 }
 
 func NewOpenWeatherMapProvider(apiKey string) Provider {
-	return &openWeatherMapProvider{apiKey: apiKey}
+	return &openWeatherMapProvider{
+		apiKey:           apiKey,
+		httpClient:       http.NewHttpClient(10 * time.Second),
+		jsonUnmarshaller: http.NewJsonUnmarshaller(),
+	}
 }

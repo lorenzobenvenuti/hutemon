@@ -20,7 +20,7 @@ type httpClient struct {
 }
 
 func (c *httpClient) Get(url string) ([]byte, error) {
-	client := http.Client{Timeout: time.Second * 10}
+	client := http.Client{Timeout: c.timeout}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -52,15 +52,4 @@ func (ju *jsonUnmarshaller) Unmarshal(bytes []byte, v interface{}) error {
 
 func NewJsonUnmarshaller() JsonUnmarshaller {
 	return &jsonUnmarshaller{}
-}
-
-var defaultHttpClient = NewHttpClient(10 * time.Second)
-var defaultJsonUnmarshaller = NewJsonUnmarshaller()
-
-func GetAndUnmarshal(url string, v interface{}) error {
-	body, err := defaultHttpClient.Get(url)
-	if err != nil {
-		return err
-	}
-	return defaultJsonUnmarshaller.Unmarshal(body, v)
 }
