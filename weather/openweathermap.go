@@ -30,7 +30,7 @@ func (wp *openWeatherMapProvider) GetWeather(location string) (*Weather, error) 
 	if err != nil {
 		return nil, err
 	}
-	wp.jsonUnmarshaller.Unmarshal(bytes, owr)
+	err = wp.jsonUnmarshaller.Unmarshal(bytes, owr)
 	if err != nil {
 		return nil, err
 	}

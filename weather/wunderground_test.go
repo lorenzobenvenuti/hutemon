@@ -7,17 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockHttpClient struct {
-	bytes []byte
-	err   error
-	url   string
-}
-
-func (hc *mockHttpClient) Get(url string) ([]byte, error) {
-	hc.url = url
-	return hc.bytes, hc.err
-}
-
 type wundergroundJsonUnmarshaller struct {
 	invoked     bool
 	weather     string
