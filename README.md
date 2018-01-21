@@ -4,6 +4,7 @@ WIP
 
 # TODO
 
+* Use goroutines to retrieve measurement and weather in parallel
 * Use `mock` (from `testify`) instead of stubs
 * Parse command line arguments
 * Test package `http`

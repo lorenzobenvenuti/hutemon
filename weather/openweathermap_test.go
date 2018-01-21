@@ -20,10 +20,12 @@ func (ju *openWeatherMapJsonUnmarshaller) Unmarshal(bytes []byte, v interface{})
 		w := v.(*openWeatherMapResponse)
 		w.Main.Humidity = ju.humidity
 		w.Main.Temp = ju.temperature
-		// FIXME!?
+		// json annotation required?! FIXME!?
 		w.Weather = []struct {
 			Main string `json:"main"`
-		}{{Main: "Sun"}}
+		}{
+			{Main: "Sun"},
+		}
 		return nil
 	}
 	return errors.New("Error during unmarshalling")
