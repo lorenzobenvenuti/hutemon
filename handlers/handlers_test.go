@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lorenzobenvenuti/hutemon/weather"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +16,7 @@ type dummyHandler struct {
 	failing bool
 }
 
-func (dh *dummyHandler) Handle(w *weather.Weather) error {
+func (dh *dummyHandler) Handle(w *WeatherAndMeasurement) error {
 	time.Sleep(dh.timeout)
 	if dh.failing {
 		return fmt.Errorf("Error %s", dh.name)
@@ -44,7 +43,7 @@ func TestMultiError(t *testing.T) {
 }
 
 func TestHandlerChainWithErrors(t *testing.T) {
-	w := &weather.Weather{}
+	w := &WeatherAndMeasurement{}
 	h := make(map[string]Handler)
 	h["a"] = newDummyHandler("A", 10*time.Millisecond, true)
 	h["b"] = newDummyHandler("B", 20*time.Millisecond, true)
@@ -63,7 +62,7 @@ func TestHandlerChainWithErrors(t *testing.T) {
 }
 
 func TestHandlerChainWithoutErrors(t *testing.T) {
-	w := &weather.Weather{}
+	w := &WeatherAndMeasurement{}
 	h := make(map[string]Handler)
 	h["a"] = newDummyHandler("A", 10*time.Millisecond, false)
 	h["b"] = newDummyHandler("B", 20*time.Millisecond, false)
