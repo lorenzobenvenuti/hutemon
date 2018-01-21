@@ -22,7 +22,7 @@ type multiError struct {
 }
 
 func (me *multiError) Error() string {
-	msgs := make([]string, len(me.errors))
+	msgs := make([]string, 0)
 	for k, e := range me.errors {
 		msgs = append(msgs, fmt.Sprintf("%s -> %s", k, e))
 	}

@@ -29,7 +29,7 @@ func (wpc *providerChain) GetWeather(location string) (*Weather, error) {
 		}
 		glog.Errorf("Provider %v returned an error: %s", wp, err)
 	}
-	return nil, errors.New("No provider did return weather")
+	return nil, errors.New("All providers failed to retrieve weather")
 }
 
 func NewProviderChain(providers []Provider) Provider {

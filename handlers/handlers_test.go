@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -27,6 +29,20 @@ func newDummyHandler(name string, timeout time.Duration, failing bool) Handler {
 	return &dummyHandler{name: name, timeout: timeout, failing: failing}
 }
 
+func TestMultiError(t *testing.T) {
+	errs := make(map[string]error)
+	errs["a"] = errors.New("Error A")
+	errs["b"] = errors.New("Error B")
+	errs["c"] = errors.New("Error C")
+	me := &multiError{errors: errs}
+	str := me.Error()
+	lines := strings.Split(str, "\n")
+	assert.Equal(t, 3, len(lines), "Three lines expected")
+	assert.Contains(t, lines, "a -> Error A")
+	assert.Contains(t, lines, "b -> Error B")
+	assert.Contains(t, lines, "c -> Error C")
+}
+
 func TestHandlerChainWithErrors(t *testing.T) {
 	w := &weather.Weather{}
 	h := make(map[string]Handler)
@@ -39,11 +55,11 @@ func TestHandlerChainWithErrors(t *testing.T) {
 	assert.True(t, ok, "Error must be a multiError")
 	assert.Equal(t, 3, len(me.errors), "Three errors expected")
 	assert.Contains(t, me.errors, "a")
-	assert.Equal(t, me.errors["a"].Error(), "Error A")
+	assert.Equal(t, "Error A", me.errors["a"].Error())
 	assert.Contains(t, me.errors, "b")
-	assert.Equal(t, me.errors["b"].Error(), "Error B")
+	assert.Equal(t, "Error B", me.errors["b"].Error())
 	assert.Contains(t, me.errors, "a")
-	assert.Equal(t, me.errors["d"].Error(), "Error D")
+	assert.Equal(t, "Error D", me.errors["d"].Error())
 }
 
 func TestHandlerChainWithoutErrors(t *testing.T) {
