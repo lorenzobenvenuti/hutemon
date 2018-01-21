@@ -2,6 +2,7 @@ package weather
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,9 +26,9 @@ func (wpc *providerChain) GetWeather(location string) (*Weather, error) {
 		w, err := wp.GetWeather(location)
 		if err == nil {
 			logrus.WithFields(logrus.Fields{
-				"provider": wp,
+				"provider": reflect.TypeOf(wp),
 				"result":   w,
-			}).Info("Weather correctly retrieved")
+			}).Debug("Weather correctly retrieved")
 			return w, nil
 		}
 		logrus.WithFields(logrus.Fields{

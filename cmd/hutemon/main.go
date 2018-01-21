@@ -25,6 +25,7 @@ func getHandler(args []string) handlers.Handler {
 }
 
 func main() {
+	logrus.SetLevel(logrus.DebugLevel)
 	m, err := sensor.NewDHT22Sensor(4, 10).Measure()
 	if err != nil {
 		logrus.Fatal(err)
