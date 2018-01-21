@@ -1,6 +1,7 @@
 package weather
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -36,7 +37,8 @@ func (wu *wUndergroundProvider) GetWeather(location string) (*Weather, error) {
 	}
 	h, err := strconv.ParseFloat(strings.Trim(wur.CurrentObservation.RelativeHumidity, "%"), 32)
 	if err != nil {
-		return nil, err
+		// TODO: loggare
+		return nil, errors.New(fmt.Sprintf("Error parsing humidity (\"%s\")", wur.CurrentObservation.RelativeHumidity))
 	}
 	return &Weather{Weather: wur.CurrentObservation.Weather, Temperature: wur.CurrentObservation.TempC, Humidity: float32(h)}, nil
 }
