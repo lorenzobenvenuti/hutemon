@@ -3,7 +3,7 @@ package weather
 import (
 	"errors"
 
-	"github.com/golang/glog"
+	"github.com/sirupsen/logrus"
 )
 
 type Weather struct {
@@ -24,10 +24,16 @@ func (wpc *providerChain) GetWeather(location string) (*Weather, error) {
 	for _, wp := range wpc.providers {
 		w, err := wp.GetWeather(location)
 		if err == nil {
-			glog.Infof("Provider %v returned result: %v", wp, w)
+			logrus.WithFields(logrus.Fields{
+				"provider": wp,
+				"result":   w,
+			}).Info("Weather correctly retrieved")
 			return w, nil
 		}
-		glog.Errorf("Provider %v returned an error: %s", wp, err)
+		logrus.WithFields(logrus.Fields{
+			"provider": wp,
+			"error":    err,
+		}).Warn("Error retrieving weather")
 	}
 	return nil, errors.New("All providers failed to retrieve weather")
 }

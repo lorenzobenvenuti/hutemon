@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/lorenzobenvenuti/hutemon/http"
+	"github.com/sirupsen/logrus"
 )
 
 type wUndergroundProvider struct {
@@ -27,6 +28,11 @@ type wUndergroundResponse struct {
 func (wu *wUndergroundProvider) GetWeather(location string) (*Weather, error) {
 	url := fmt.Sprintf("http://api.wunderground.com/api/%s/conditions/q/IT/%s.json", wu.apiKey, location)
 	wur := &wUndergroundResponse{}
+	logrus.WithFields(logrus.Fields{
+		"url":      url,
+		"api_key":  wu.apiKey,
+		"location": location,
+	}).Debug("Performing request to Weather Underground")
 	bytes, err := wu.httpClient.Get(url)
 	if err != nil {
 		return nil, err
