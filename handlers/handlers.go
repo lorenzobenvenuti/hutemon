@@ -7,7 +7,6 @@ import (
 
 	"github.com/lorenzobenvenuti/hutemon/sensor"
 	"github.com/lorenzobenvenuti/hutemon/weather"
-	"github.com/sirupsen/logrus"
 )
 
 type WeatherAndMeasurement struct {
@@ -67,18 +66,4 @@ func (hc *handlerChain) Handle(wam *WeatherAndMeasurement) error {
 
 func NewHandlerChain(handlers map[string]Handler) Handler {
 	return &handlerChain{handers: handlers}
-}
-
-type loggingHandler struct{}
-
-func (lh *loggingHandler) Handle(wam *WeatherAndMeasurement) error {
-	logrus.WithFields(logrus.Fields{
-		"weather":     wam.Weather,
-		"measurement": wam.Measurement,
-	}).Info("Received weather and measurement")
-	return nil
-}
-
-func NewLoggingHandler() Handler {
-	return &loggingHandler{}
 }
