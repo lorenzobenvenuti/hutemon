@@ -71,3 +71,9 @@ func TestOpenWeatherMapProviderWhenUnmarshallerReturnsError(t *testing.T) {
 	assert.Nil(t, resp, "Response is nil")
 	assert.Equal(t, "Error during unmarshalling", err.Error(), "Error is not null")
 }
+
+func TestNewOpenWeatherMapProvider(t *testing.T) {
+	p := NewOpenWeatherMapProvider("key")
+	owp := p.(*openWeatherMapProvider)
+	assert.Equal(t, "key", owp.apiKey, "Api key must be the one passed to factory method")
+}

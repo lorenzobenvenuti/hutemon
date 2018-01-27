@@ -81,3 +81,9 @@ func TestWUndergroundProviderHumidityFormatNotValid(t *testing.T) {
 	assert.Equal(t, "Error parsing humidity (\"fifty percent\")", err.Error(), "Error is not null")
 	assert.Equal(t, "http://api.wunderground.com/api/my-api-key/conditions/q/IT/Pisa.json", hc.url, "Url string contains api key and location")
 }
+
+func TestNewWUndergroundProvider(t *testing.T) {
+	p := NewWUndergroundProvider("key")
+	wup := p.(*wUndergroundProvider)
+	assert.Equal(t, "key", wup.apiKey, "Api key must be the one passed to factory method")
+}
